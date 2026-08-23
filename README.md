@@ -26,8 +26,5 @@ Spendly is a personal finance management web application that helps users track 
 
 ## Author
 **Wilsan Mohamed Ahmed**
-
 Computer Science Student 
-**Wilsan Mohamed Ahmed**
 
-Computer Science Student | Data Analyst in Progress
