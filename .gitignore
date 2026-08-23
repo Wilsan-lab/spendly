@@ -1,0 +1,13 @@
+# Database configuration
+config.php
+
+# Environment files
+.env
+.env.*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
