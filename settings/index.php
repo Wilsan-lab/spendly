@@ -15,7 +15,6 @@ $user_id = $_SESSION["user_id"];
 $message = "";
 $message_type = "";
 
-
 // ==========================================
 // SAVE SETTINGS
 // ==========================================
@@ -23,7 +22,6 @@ $message_type = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $currency = $_POST["currency"] ?? "";
-    $theme = $_POST["theme"] ?? "";
 
     $allowed_currencies = [
         "USD",
@@ -32,48 +30,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "DJF"
     ];
 
-    $allowed_themes = [
-        "light",
-        "dark"
-    ];
-
-
     // Validate currency
     if (!in_array($currency, $allowed_currencies, true)) {
 
         $message = "Invalid currency.";
         $message_type = "error";
 
-    }
+    } else {
 
-    // Validate theme
-    elseif (!in_array($theme, $allowed_themes, true)) {
-
-        $message = "Invalid theme.";
-        $message_type = "error";
-
-    }
-
-    else {
-
-        // Save currency and theme
+        // Save currency only
         $stmt = $pdo->prepare("
             UPDATE users
-            SET currency = ?, theme = ?
+            SET currency = ?
             WHERE id = ?
         ");
 
         $success = $stmt->execute([
             $currency,
-            $theme,
             $user_id
         ]);
 
-
         if ($success) {
-
-            // Save theme in session too
-            $_SESSION["theme"] = $theme;
 
             $message = "Settings updated successfully.";
             $message_type = "success";
@@ -86,13 +63,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-
 // ==========================================
 // GET CURRENT USER INFORMATION
 // ==========================================
 
 $stmt = $pdo->prepare("
-    SELECT name, email, currency, theme
+    SELECT name, email, currency
     FROM users
     WHERE id = ?
 ");
@@ -101,18 +77,11 @@ $stmt->execute([$user_id]);
 
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
 // ==========================================
 // DEFAULT VALUES
 // ==========================================
 
 $current_currency = $user["currency"] ?? "USD";
-
-$current_theme = $user["theme"] ?? "light";
-
-
-// Save theme in session
-$_SESSION["theme"] = $current_theme;
 
 ?>
 
@@ -139,57 +108,54 @@ $_SESSION["theme"] = $current_theme;
 </head>
 
 
-<body class="<?php echo $current_theme === "dark" ? "dark-mode" : ""; ?>">
-
+<!-- Always Dark Mode -->
+<body class="dark-mode">
 
 <div class="app-layout">
-
 
     <!-- ========================================== -->
     <!-- SIDEBAR -->
     <!-- ========================================== -->
 
-    <!-- Sidebar -->
+    <aside class="sidebar">
 
-<aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1>Spendly</h1>
+        </div>
 
-    <div class="sidebar-logo">
-        <h1>Spendly</h1>
-    </div>
+        <nav class="sidebar-nav">
 
-    <nav class="sidebar-nav">
+            <a href="../dashboard/index.php" class="nav-item">
+                Dashboard
+            </a>
 
-        <a href="../dashboard/index.php" class="nav-item">
-            Dashboard
-        </a>
+            <a href="../transactions/index.php" class="nav-item">
+                Transactions
+            </a>
 
-        <a href="../transactions/index.php" class="nav-item">
-            Transactions
-        </a>
+            <a href="../categories/index.php" class="nav-item">
+                Categories
+            </a>
 
-        <a href="../categories/index.php" class="nav-item">
-            Categories
-        </a>
+            <a href="../reports/index.php" class="nav-item">
+                Reports
+            </a>
 
-        <a href="../reports/index.php" class="nav-item">
-            Reports
-        </a>
+            <a href="index.php" class="nav-item active">
+                Settings
+            </a>
 
-        <a href="index.php" class="nav-item active">
-            Settings
-        </a>
+        </nav>
 
-    </nav>
+        <div class="sidebar-bottom">
 
-    <div class="sidebar-bottom">
+            <a href="../auth/logout.php" class="nav-item">
+                Logout
+            </a>
 
-        <a href="../auth/logout.php" class="nav-item">
-            Logout
-        </a>
+        </div>
 
-    </div>
-
-</aside>
+    </aside>
 
 
     <!-- ========================================== -->
@@ -197,7 +163,6 @@ $_SESSION["theme"] = $current_theme;
     <!-- ========================================== -->
 
     <main class="main-content">
-
 
         <!-- Message -->
 
@@ -241,14 +206,11 @@ $_SESSION["theme"] = $current_theme;
                 Profile
             </h2>
 
-
             <p class="settings-description">
                 Your account information.
             </p>
 
-
             <div class="settings-info">
-
 
                 <div>
 
@@ -275,7 +237,6 @@ $_SESSION["theme"] = $current_theme;
 
                 </div>
 
-
             </div>
 
         </div>
@@ -291,16 +252,12 @@ $_SESSION["theme"] = $current_theme;
                 Preferences
             </h2>
 
-
             <p class="settings-description">
                 Customize how Spendly works for you.
             </p>
 
 
-            <form
-                method="POST"
-            >
-
+            <form method="POST">
 
                 <!-- Currency -->
 
@@ -360,48 +317,6 @@ $_SESSION["theme"] = $current_theme;
                 </div>
 
 
-                <!-- Theme -->
-
-                <div class="setting-row">
-
-                    <div>
-
-                        <strong>
-                            Theme
-                        </strong>
-
-                        <p>
-                            Choose between light and dark mode.
-                        </p>
-
-                    </div>
-
-
-                    <select
-                        name="theme"
-                        class="form-control"
-                    >
-
-                        <option
-                            value="light"
-                            <?php echo $current_theme === "light" ? "selected" : ""; ?>
-                        >
-                            Light
-                        </option>
-
-
-                        <option
-                            value="dark"
-                            <?php echo $current_theme === "dark" ? "selected" : ""; ?>
-                        >
-                            Dark
-                        </option>
-
-                    </select>
-
-                </div>
-
-
                 <!-- Save -->
 
                 <div class="form-actions">
@@ -414,7 +329,6 @@ $_SESSION["theme"] = $current_theme;
                     </button>
 
                 </div>
-
 
             </form>
 
@@ -431,15 +345,16 @@ $_SESSION["theme"] = $current_theme;
                 Security
             </h2>
 
-
             <p class="settings-description">
                 Manage your account security.
             </p>
 
-
-            <a href="change_password.php" class="btn btn-primary">
-    Change Password
-</a>
+            <a
+                href="change_password.php"
+                class="btn btn-primary"
+            >
+                Change Password
+            </a>
 
         </div>
 
@@ -454,11 +369,9 @@ $_SESSION["theme"] = $current_theme;
                 Account
             </h2>
 
-
             <p class="settings-description">
                 Sign out of your Spendly account.
             </p>
-
 
             <a
                 href="../auth/logout.php"
@@ -472,9 +385,7 @@ $_SESSION["theme"] = $current_theme;
 
     </main>
 
-
 </div>
-
 
 </body>
 
